@@ -1,0 +1,6 @@
+java.lang:type=GarbageCollector,name=ConcurrentMarkSweep;CollectionCount
+java.lang:type=GarbageCollector,name=ConcurrentMarkSweep;CollectionTime
+java.lang:type=GarbageCollector,name=ParNew;CollectionCount
+java.lang:type=GarbageCollector,name=ParNew;CollectionTime
+java.lang:type=Memory
+java.lang:type=OperatingSystem;SystemCpuLoad
