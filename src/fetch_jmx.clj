@@ -84,8 +84,8 @@
                                        ["-j" "--jmx" "JMX metrics to collect delinated by ';'"]
                                        ["-l" "--list" "List available beans using supplied pattern (*:*)"]
                                        ["-f" "--file" "Input file containing JMX metrics to collect, one per line"]
-                                       ["-t" "--time" "Total time to run the monitor (seconds)" :default -1 :parse-fn #(Integer. %)]
-                                       ["-i" "--interval" "Intverval between metrics fetch (seconds)" :parse-fn #(Integer. %)])]
+                                       ["-t" "--time" "Total time to run the monitor (seconds)" :default 1 :parse-fn #(Integer. %)]
+                                       ["-i" "--interval" "Intverval between metrics fetch (seconds)" :default 60 :parse-fn #(Integer. %)])]
 
     (when (:help options)
       (println banner)
