@@ -87,7 +87,7 @@
 (defn -main [& args]
   (let [[options args banner] (cli/cli args
                                        ["-h" "--help" "print this message" :default false :flag true]
-                                       ["-s" "--servers" "JMX host(s) to connect to, comma delinated" :default [["localhost" 7199]] :parse-fn parse-hosts]
+                                       ["-s" "--servers" "JMX host(s) to connect to, comma delinated" :default "localhost:7199"]
                                        ["-j" "--jmx" "JMX metrics to collect delinated by ';'"]
                                        ["-l" "--list" "List available beans using supplied pattern (*:*)"]
                                        ["-f" "--file" "Input file containing JMX metrics to collect, one per line"]
@@ -98,14 +98,17 @@
       (println banner)
       (System/exit 0))
 
-    (if-not (or (:jmx options) (:file options))
+    (prn options)
+
+    (if-not (or (:jmx options) (:file options) (:list options))
       (do
         (println "ERROR: no metrics to collect")
         (println banner)
         (System/exit 0)))
 
     (cond
-     ; (:list options) (doall (map println (list-beans (:list options))))
+     (:list options) (let [[host port] (first (parse-hosts (:servers options)))]
+                       (doall (map println (list-beans host port (:list options)))))
      :else (let [mchan (async/chan 10000)
                  metrics (doall
                           (concat
@@ -115,7 +118,7 @@
              (metrics-printer mchan)
 
              (doall
-              (doseq [[host port] (:servers options)]
+              (doseq [[host port] (parse-hosts (:servers options))]
                 (monitor-host mchan (:interval options) host port metrics)))
 
              (Thread/sleep (* 1000 (:time options)))
