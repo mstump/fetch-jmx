@@ -24,6 +24,14 @@
     (string/split input #";")
     []))
 
+(defn parse-host [input]
+  (if input
+    (let [[host port] (string/split input #":")]
+      [host (Integer. port)])))
+
+(defn parse-hosts [input]
+  (remove nil? (map parse-host (string/split input #","))))
+
 (defrecord Metric [host port metric timestamp data])
 
 (defn get-bean [bean]
@@ -79,8 +87,7 @@
 (defn -main [& args]
   (let [[options args banner] (cli/cli args
                                        ["-h" "--help" "print this message" :default false :flag true]
-                                       ["-s" "--server" "JMX host to connect to" :default "localhost"]
-                                       ["-p" "--port" "JMX port to connect to" :default 7199 :parse-fn #(Integer. %)]
+                                       ["-s" "--servers" "JMX host(s) to connect to, comma delinated" :default [["localhost" 7199]] :parse-fn parse-hosts]
                                        ["-j" "--jmx" "JMX metrics to collect delinated by ';'"]
                                        ["-l" "--list" "List available beans using supplied pattern (*:*)"]
                                        ["-f" "--file" "Input file containing JMX metrics to collect, one per line"]
@@ -97,23 +104,21 @@
         (println banner)
         (System/exit 0)))
 
-    (let [host (:server options)
-          port (:port options)]
+    (cond
+     ; (:list options) (doall (map println (list-beans (:list options))))
+     :else (let [mchan (async/chan 10000)
+                 metrics (doall
+                          (concat
+                           (parse-input (:jmx options))
+                           (read-lines (:file options))))]
 
-      (cond
-       (:list options) (doall (map println (list-beans host port (:list options))))
-       :else (let [mchan (async/chan 10000)
-                   metrics (doall
-                            (concat
-                             (parse-input (:jmx options))
-                             (read-lines (:file options))))]
+             (metrics-printer mchan)
 
-               (metrics-printer mchan)
-               (monitor-host mchan (:interval options) host port metrics)
+             (doall
+              (doseq [[host port] (:servers options)]
+                (monitor-host mchan (:interval options) host port metrics)))
 
-               (Thread/sleep (* 1000 (:time options)))
-               (async/close! mchan)
+             (Thread/sleep (* 1000 (:time options)))
+             (async/close! mchan)
 
-
-
-               )))))
+             ))))
