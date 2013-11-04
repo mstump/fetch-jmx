@@ -10,16 +10,15 @@ Command line util to monitor JMX metrics
 
 ## Options
 ```
- Switches               Default    Desc                                                       
- --------               -------    ----                                                       
- -h, --no-help, --help  false      print this message                                         
- -s, --server           localhost  JMX host to connect to                                     
- -p, --port             7199       JMX port to connect to                                     
- -j, --jmx                         JMX metrics to collect delinated by ';'                    
- -l, --list                        List available beans using supplied pattern (*:*)          
- -f, --file                        Input file containing JMX metrics to collect, one per line 
- -t, --time             1          Total time to run the monitor (seconds)                    
- -i, --interval         60         Intverval between metrics fetch (seconds)   
+ Switches               Default         Desc                                                       
+ --------               -------         ----                                                       
+ -h, --no-help, --help  false           print this message                                         
+ -s, --servers          localhost:7199  JMX host(s) to connect to, comma delinated                 
+ -j, --jmx                              JMX metrics to collect delinated by ';'                    
+ -l, --list                             List available beans using supplied pattern (*:*)          
+ -f, --file                             Input file containing JMX metrics to collect, one per line 
+ -t, --time             1               Total time to run the monitor (seconds)                    
+ -i, --interval         60              Intverval between metrics fetch (seconds)    
  ```
  
 ## Format of the metrics file
