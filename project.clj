@@ -5,5 +5,6 @@
                  [org.clojure/data.json "0.2.3"]
                  [org.clojure/java.jmx "0.2.0"]
                  [org.clojure/tools.cli "0.2.4"]]
+  :jvm-opts ["-Xmx1g" "-server"]
   :main fetch_jmx
   :aot :all)

@@ -53,6 +53,14 @@
          (get-bean bean))
        (catch Exception e nil)))))
 
+(defmulti serialize class)
+
+(defmethod serialize java.util.concurrent.TimeUnit [data]
+  (json/write-str (.toMillis data Long/MAX_VALUE)))
+
+(defmethod serialize :default [data]
+  (json/write-str data))
+
 (defn list-beans [host port input]
   (jmx/with-connection {:host host, :port port}
     (sort #(compare (string/upper-case %1) (string/upper-case %2))
@@ -65,8 +73,8 @@
 (defn print-metric [metric]
   (if (coll? (:data metric))
     (doseq [[attribute values] (:data metric)]
-      (printf "%s | %s:%d | %s | %s | %s\r\n" (format-date (:timestamp metric)) (:host metric) (:port metric) (:metric metric) (name attribute) (json/write-str values)))
-    (printf "%s | %s:%d | %s | %s\r\n" (format-date (:timestamp metric)) (:host metric) (:port metric) (:metric metric) (json/write-str (:data metric))))
+      (printf "%s | %s:%d | %s | %s | %s\r\n" (format-date (:timestamp metric)) (:host metric) (:port metric) (:metric metric) (name attribute) (serialize values)))
+    (printf "%s | %s:%d | %s | %s\r\n" (format-date (:timestamp metric)) (:host metric) (:port metric) (:metric metric) (serialize (:data metric))))
   (flush))
 
 (defn metrics-printer [mchan]
